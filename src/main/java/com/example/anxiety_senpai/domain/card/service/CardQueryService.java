@@ -2,8 +2,6 @@ package com.example.anxiety_senpai.domain.card.service;
 
 import com.example.anxiety_senpai.domain.card.dto.CardListItemResponse;
 import com.example.anxiety_senpai.domain.card.enums.SolveStatus;
-import com.example.anxiety_senpai.domain.card.exception.CardException;
-import com.example.anxiety_senpai.domain.card.exception.code.CardErrorCode;
 import com.example.anxiety_senpai.domain.card.repository.CardQueryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -26,7 +24,7 @@ public class CardQueryService {
             SolveStatus solveStatus
     ) {
         if (page < 0 || size <= 0) {
-            throw new CardException(CardErrorCode.INVALID_TAG_NAME); // placeholder 400
+            throw new IllegalArgumentException("Invalid paging parameters");
         }
 
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
@@ -70,7 +68,6 @@ public class CardQueryService {
         return switch (sort) {
             case "oldest" -> Sort.by(Sort.Direction.ASC, "createdAt");
             case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            case "popular" -> Sort.unsorted();
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
     }
