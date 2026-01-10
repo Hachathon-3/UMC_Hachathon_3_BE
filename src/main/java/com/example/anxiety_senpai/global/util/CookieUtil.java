@@ -12,7 +12,7 @@ public class CookieUtil {
     public static ResponseCookie accessToken(String token) {
         return ResponseCookie.from("accessToken", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("None")
                 .path("/")
                 .maxAge(Duration.ofMinutes(30))
@@ -22,7 +22,7 @@ public class CookieUtil {
     public static ResponseCookie refreshToken(String token) {
         return ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("None")
                 .maxAge(7 * 24 * 60 * 60)
                 .path("/")
@@ -32,7 +32,7 @@ public class CookieUtil {
     public static ResponseCookie delete(String name) {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("None")
                 .path("/")
                 .maxAge(0)
