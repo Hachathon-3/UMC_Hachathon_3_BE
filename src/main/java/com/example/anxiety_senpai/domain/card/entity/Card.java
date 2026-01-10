@@ -46,13 +46,13 @@ public class Card {
     @Column(name = "content")
     private String content;
 
-    /**
-     * 게시물 상태 (ACTIVE/HIDDEN/DELETED)
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    @Builder.Default
-    private CardStatus status = CardStatus.ACTIVE;
+//    /**
+//     * 게시물 상태 (ACTIVE/HIDDEN/DELETED)
+//     */
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "status", nullable = false, length = 20)
+//    @Builder.Default
+//    private CardStatus status = CardStatus.ACTIVE;
 
     /**
      * 해결 상태 (SOLVED/UNSOLVED)
@@ -81,8 +81,8 @@ public class Card {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+//    @Column(name = "deleted_at")
+//    private LocalDateTime deletedAt;
 
     /**
      * 연관관계(선택)
@@ -134,7 +134,7 @@ public class Card {
         this.updatedAt = now;
 
         // Builder로 null 들어온 경우 안전장치
-        if (this.status == null) this.status = CardStatus.ACTIVE;
+//        if (this.status == null) this.status = CardStatus.ACTIVE;
         if (this.solveStatus == null) this.solveStatus = SolveStatus.UNSOLVED;
         if (this.allowComment == null) this.allowComment = true;
     }
@@ -160,17 +160,17 @@ public class Card {
         this.solveStatus = SolveStatus.UNSOLVED;
     }
 
-    public void hide() {
-        this.status = CardStatus.HIDDEN;
-    }
-
-    public void restore() {
-        this.status = CardStatus.ACTIVE;
-        this.deletedAt = null;
-    }
-
-    public void softDelete() {
-        this.status = CardStatus.DELETED;
-        this.deletedAt = LocalDateTime.now();
-    }
+//    public void hide() {
+//        this.status = CardStatus.HIDDEN;
+//    }
+//
+//    public void restore() {
+//        this.status = CardStatus.ACTIVE;
+//        this.deletedAt = null;
+//    }
+//
+//    public void softDelete() {
+//        this.status = CardStatus.DELETED;
+//        this.deletedAt = LocalDateTime.now();
+//    }
 }
