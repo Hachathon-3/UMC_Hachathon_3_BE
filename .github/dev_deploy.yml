@@ -1,0 +1,144 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ dev ]  # dev 브랜치에 push가 일어날 때 실행
+  pull_request:
+    types: [closed]
+    branches: [ dev ]
+  workflow_dispatch:  # 수동 실행도 가능하도록
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'dev')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Create application.yml from secrets
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+          cat ./src/main/resources/application.yml | head -5  # 확인용 (처음 5줄만)
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+        # 또는 gradle/gradle-build-action 사용 시:
+        # uses: gradle/gradle-build-action@v3
+        # with:
+        #   arguments: clean build -x test
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: umc7thServer
+          path: build/libs/*.jar
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'dev')
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: umc7thServer
+          path: build/libs/
+
+      - name: Deploy to EC2
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          # SSH 키 파일 생성
+          echo "$EC2_SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          
+          # JAR 파일 찾기 (plain JAR 제외)
+          jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
+          
+          if [ -z "$jar_file" ]; then
+            echo "Error: JAR file not found!"
+            exit 1
+          fi
+          
+          echo "Found JAR file: $jar_file"
+          
+          # application.yml을 임시 파일로 생성
+          echo "${{ secrets.APPLICATION_YML }}" > application.yml.tmp
+          
+          # EC2 서버에 디렉토리 생성 및 기존 프로세스 종료/백업
+          APP_DIR="/home/$EC2_USERNAME/anxiety-senpai"
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            $EC2_USERNAME@$EC2_HOST "
+            mkdir -p $APP_DIR &&
+            cd $APP_DIR || exit 1 &&
+            
+            # 기존 프로세스 종료
+            if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
+              echo 'Stopping existing application...'
+              pkill -f 'anxiety-senpai.jar' || true
+              sleep 5
+              
+              if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
+                pkill -9 -f 'anxiety-senpai.jar' || true
+                sleep 2
+              fi
+            fi &&
+            
+            # 기존 JAR 백업 (새 파일 전송 전에)
+            if [ -f anxiety-senpai.jar ]; then
+              mv anxiety-senpai.jar anxiety-senpai.jar.backup.\$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
+            fi
+          "
+          
+          # JAR 파일 전송
+          scp -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$jar_file" \
+            $EC2_USERNAME@$EC2_HOST:$APP_DIR/anxiety-senpai.jar
+          
+          # application.yml 파일 전송
+          scp -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            application.yml.tmp \
+            $EC2_USERNAME@$EC2_HOST:$APP_DIR/application.yml
+          
+          # 애플리케이션 실행
+          ssh -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            $EC2_USERNAME@$EC2_HOST "
+            cd $APP_DIR || exit 1 &&
+            
+            # Spring Boot 애플리케이션 실행
+            echo 'Starting application...' &&
+            nohup java -jar -Dspring.config.location=file:./application.yml anxiety-senpai.jar > app.log 2>&1 &
+            
+            # 프로세스 시작 확인
+            sleep 5
+            if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
+              echo 'Application started successfully!'
+              ps aux | grep java | grep -v grep
+              echo '--- Recent logs ---'
+              tail -20 app.log
+            else
+              echo 'Error: Application failed to start!'
+              echo '--- Full error log ---'
+              tail -50 app.log
+              exit 1
+            fi
+          "
+          
+          # 임시 파일 및 SSH 키 삭제
+          rm -f private_key.pem application.yml.tmp
