@@ -19,8 +19,7 @@ public interface CardQueryJpaRepository extends JpaRepository<Card, Long> {
             substring(c.content, 1, 100),
             c.solveStatus,
             c.allowComment,
-            c.user.id,
-            c.user.name,
+            new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse$AuthorResponse(c.user.id, c.user.name),
             c.createdAt,
             c.updatedAt
         )
@@ -39,4 +38,3 @@ public interface CardQueryJpaRepository extends JpaRepository<Card, Long> {
             Pageable pageable
     );
 }
-
