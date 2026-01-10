@@ -88,7 +88,6 @@ public interface AuthControllerDocs {
     )
     @PostMapping("/logout")
     ApiResponse<?> logout(
-            HttpServletRequest request,
             HttpServletResponse response
     );
 }
