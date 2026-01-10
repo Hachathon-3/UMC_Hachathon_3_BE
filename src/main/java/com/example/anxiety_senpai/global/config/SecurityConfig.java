@@ -2,6 +2,7 @@ package com.example.anxiety_senpai.global.config;
 
 import com.example.anxiety_senpai.global.config.security.jwt.JwtAuthFilter;
 import com.example.anxiety_senpai.global.config.security.oauth.CustomOAuth2UserService;
+import com.example.anxiety_senpai.global.config.security.oauth.handler.OAuth2LoginFailureHandler;
 import com.example.anxiety_senpai.global.config.security.oauth.handler.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,22 +18,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-        private final JwtAuthFilter jwtAuthFilter;
-        private final OAuth2LoginSuccessHandler successHandler;
-        private final CustomOAuth2UserService customOAuth2UserService;
-        private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final OAuth2LoginSuccessHandler successHandler;
+    private final OAuth2LoginFailureHandler failureHandler;
 
-        private static final String[] PERMIT_URLS = {
-                "/**",
-                "/health",
-                "/swagger-ui/**",
-                "/v3/api-docs/**",
-                "/swagger/login/**",
-                "/oauth2/authorization/**",
-                "/login/oauth2/code/**",
-                "/api/auth/logout",
-                "/api/auth/refresh"
-        };
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    private static final String[] PERMIT_URLS = {
+            "/**",
+            "/health",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger/login/**",
+            "/oauth2/authorization/**",
+            "/login/oauth2/code/**",
+            "/api/auth/logout",
+            "/api/auth/refresh"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -56,6 +59,7 @@ public class SecurityConfig {
                                 userInfo.userService(customOAuth2UserService)
                         )
                         .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                 )
 
 
