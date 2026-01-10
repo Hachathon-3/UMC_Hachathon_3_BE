@@ -13,7 +13,7 @@ public class CookieUtil {
         return ResponseCookie.from("accessToken", token)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("None")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(Duration.ofMinutes(30))
                 .build();
@@ -23,7 +23,7 @@ public class CookieUtil {
         return ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(7 * 24 * 60 * 60)
                 .path("/")
                 .build();
@@ -33,7 +33,7 @@ public class CookieUtil {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
                 .secure(false)
-                .sameSite("None")
+                .sameSite("Lax")
                 .path("/")
                 .maxAge(0)
                 .build();
