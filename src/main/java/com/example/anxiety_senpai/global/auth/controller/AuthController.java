@@ -31,21 +31,8 @@ public class AuthController implements AuthControllerDocs {
 
     @Override
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        try {
-            return authService.refresh(request, response);
-        } catch (AuthException e) {
-            return ResponseEntity
-                    .status(e.getCode().getStatus())
-                    .body(ApiResponse.onFailure(e.getCode(),e.getCode().getMessage()));
-        } catch (UserException e) {
-            return ResponseEntity
-                    .status(e.getCode().getStatus())
-                    .body(ApiResponse.onFailure(e.getCode(),e.getCode().getMessage()));
-        }
+    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response){
+        return authService.refresh(request,response);
     }
 
     // 로그아웃

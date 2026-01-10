@@ -22,9 +22,6 @@ public class OAuth2LoginSuccessHandler
 
     private final AuthService authService;
 
-    @Value("${app.frontend.url}")
-    private String frontendUrl;
-
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
@@ -45,7 +42,7 @@ public class OAuth2LoginSuccessHandler
         SecurityContextHolder.clearContext();
 
         // 프론트엔드로 리다이렉트
-        String redirectUrl = frontendUrl + "/auth/callback";
+        String redirectUrl = "http://54.242.218.23:8080/auth/callback";
         response.sendRedirect(redirectUrl);
     }
 }
