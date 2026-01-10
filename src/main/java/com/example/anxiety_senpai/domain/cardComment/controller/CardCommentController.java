@@ -1,0 +1,33 @@
+package com.example.anxiety_senpai.domain.cardComment.controller;
+
+import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentCreateRequest;
+import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentCreateResponse;
+import com.example.anxiety_senpai.domain.cardComment.service.CardCommentService;
+import com.example.anxiety_senpai.global.apiPayload.code.GeneralSuccessCode;
+import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
+import com.example.anxiety_senpai.global.auth.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/cards/{cardId}/comments")
+@Validated
+public class CardCommentController {
+
+    private final CardCommentService cardCommentService;
+
+    @PostMapping
+    public ApiResponse<CardCommentCreateResponse> createComment(
+            @PathVariable Long cardId,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody @Validated CardCommentCreateRequest request
+    ) {
+        Long userId = (user == null) ? null : user.getUserId();
+        CardCommentCreateResponse response = cardCommentService.createComment(cardId, userId, request);
+        return ApiResponse.onSuccess(GeneralSuccessCode.CREATED, response);
+    }
+}
+
