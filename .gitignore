@@ -38,3 +38,5 @@ out/
 
 .yaml
 .env
+# Ignore application configuration
+src/main/resources/application.yaml
