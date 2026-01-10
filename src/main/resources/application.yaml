@@ -63,7 +63,3 @@ server:
       cookie:
         same-site: lax
         secure: false
-
-app:
-  frontend:
-    url: http://54.242.218.23:8080
