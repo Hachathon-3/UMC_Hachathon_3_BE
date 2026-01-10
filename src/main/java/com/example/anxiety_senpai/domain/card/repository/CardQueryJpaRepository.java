@@ -18,7 +18,7 @@ public interface CardQueryJpaRepository extends JpaRepository<Card, Long> {
                     substring(c.content, 1, 60),
                     c.solveStatus,
                     c.allowComment,
-                    new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse.AuthorResponse(u.id, u.name),
+                    new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse$AuthorResponse(u.id, u.name),
                     c.createdAt,
                     c.updatedAt
                 )
