@@ -4,6 +4,7 @@ import com.example.anxiety_senpai.domain.reaction.dto.ReactionResponse;
 import com.example.anxiety_senpai.domain.reaction.dto.ReactionSummaryResponse;
 import com.example.anxiety_senpai.domain.reaction.exception.code.ReactionSuccessCode;
 import com.example.anxiety_senpai.domain.reaction.service.ReactionService;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,9 @@ public class ReactionController {
     @PostMapping
     public ApiResponse<ReactionResponse> react(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal User user
     ) {
-        Long userId = (user == null) ? null : user.getUserId();
+        Long userId = (user == null) ? null : user.getId();
         ReactionResponse response = reactionService.reactToCard(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.CREATED, response);
     }
@@ -34,9 +35,9 @@ public class ReactionController {
     @GetMapping("/summary")
     public ApiResponse<ReactionSummaryResponse> getSummary(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal User user
     ) {
-        Long userId = (user == null) ? null : user.getUserId();
+        Long userId = (user == null) ? null : user.getId();
         ReactionSummaryResponse response = reactionService.getCardReactionSummary(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.SUMMARY_OK, response);
     }

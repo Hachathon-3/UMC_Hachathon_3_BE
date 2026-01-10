@@ -1,6 +1,7 @@
 package com.example.anxiety_senpai.domain.user.controller;
 
 import com.example.anxiety_senpai.domain.user.dto.HomeResponse;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,7 @@ public interface UserControllerDocs  {
 
     @GetMapping("/home")
     ResponseEntity<ApiResponse<HomeResponse>> getHome(
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal User user
     );
 
     @Operation(

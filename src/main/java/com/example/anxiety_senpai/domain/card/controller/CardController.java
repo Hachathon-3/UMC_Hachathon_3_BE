@@ -4,6 +4,7 @@ import com.example.anxiety_senpai.domain.card.dto.CardCreateRequest;
 import com.example.anxiety_senpai.domain.card.dto.CardCreateResponse;
 import com.example.anxiety_senpai.domain.card.exception.code.CardSuccessCode;
 import com.example.anxiety_senpai.domain.card.service.CardService;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
 import jakarta.validation.Valid;
@@ -23,10 +24,10 @@ public class CardController {
 
     @PostMapping
     public ApiResponse<CardCreateResponse> createCard(
-            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody CardCreateRequest request
     ) {
-        Long cardId = cardService.create(user.getUserId(), request);
+        Long cardId = cardService.create(user.getId(), request);
 
         return ApiResponse.onSuccess(
                 CardSuccessCode.CREATED,

@@ -6,6 +6,7 @@ import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateRequest;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateResponse;
 import com.example.anxiety_senpai.domain.tag.exception.code.TagSuccessCode;
 import com.example.anxiety_senpai.domain.tag.service.TagCommandService;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,10 @@ public class CardTagCommandController {
     @PutMapping
     public ApiResponse<CardTagUpdateResponse> replaceTags(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal User user,
             @RequestBody @Validated CardTagUpdateRequest request
     ) {
-        Long userId = user == null ? null : user.getUserId();
+        Long userId = user == null ? null : user.getId();
         CardTagUpdateResponse response = tagCommandService.replaceCardTags(cardId, userId, request);
         return ApiResponse.onSuccess(TagSuccessCode.CARD_TAG_UPDATED, response);
     }
@@ -36,10 +37,10 @@ public class CardTagCommandController {
     public ApiResponse<CardTagAddResponse> addTag(
             @PathVariable Long cardId,
             @PathVariable Long tagId,
-            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "failOnDuplicate", defaultValue = "false") boolean failOnDuplicate
     ) {
-        Long userId = user == null ? null : user.getUserId();
+        Long userId = user == null ? null : user.getId();
         CardTagAddResponse response = tagCommandService.addTagToCard(cardId, userId, tagId, failOnDuplicate);
         return ApiResponse.onSuccess(TagSuccessCode.CARD_TAG_ADDED, response);
     }
@@ -48,10 +49,10 @@ public class CardTagCommandController {
     public ApiResponse<CardTagRemoveResponse> removeTag(
             @PathVariable Long cardId,
             @PathVariable Long tagId,
-            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal User user,
             @RequestParam(name = "failIfMissing", defaultValue = "false") boolean failIfMissing
     ) {
-        Long userId = user == null ? null : user.getUserId();
+        Long userId = user == null ? null : user.getId();
         CardTagRemoveResponse response = tagCommandService.removeTagFromCard(cardId, userId, tagId, failIfMissing);
         return ApiResponse.onSuccess(TagSuccessCode.CARD_TAG_REMOVED, response);
     }

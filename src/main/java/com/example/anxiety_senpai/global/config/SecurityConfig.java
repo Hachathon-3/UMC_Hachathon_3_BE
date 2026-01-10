@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private static final String[] PERMIT_URLS = {
-            "/**",
+            "/",
             "/health",
             "/swagger-ui/**",
             "/v3/api-docs/**",

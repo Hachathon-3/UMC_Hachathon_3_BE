@@ -2,6 +2,7 @@ package com.example.anxiety_senpai.domain.card.controller;
 
 import com.example.anxiety_senpai.domain.card.dto.CardDetailResponse;
 import com.example.anxiety_senpai.domain.card.service.CardDetailService;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.code.GeneralSuccessCode;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
@@ -22,9 +23,9 @@ public class CardDetailController {
     @GetMapping("/{cardId}")
     public ApiResponse<CardDetailResponse> getCardDetail(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal User user
     ) {
-        Long userId = (user == null) ? null : user.getUserId();
+        Long userId = (user == null) ? null : user.getId();
 
         return ApiResponse.onSuccess(
                 GeneralSuccessCode.FOUND,
