@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/cards/{cardId}/reactions")
+@RequestMapping({"/api/cards/{cardId}/reactions", "/api/comments/{commentId}/reactions"})
 public class ReactionController {
 
     private final ReactionService reactionService;
