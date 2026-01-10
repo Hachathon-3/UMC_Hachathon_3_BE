@@ -35,3 +35,20 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### SSH Keys and Certificates ###
+.ssh/
+*.pem
+*.ppk
+*.key
+*.p12
+*.pfx
+
+### Application Configuration Files (Sensitive) ###
+**/application-local.yaml
+**/application-local.yml
+**/application-*.yaml
+!**/application.yaml
+!**/application.yml
+**/application-*.properties
+!**/application.properties
