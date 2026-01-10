@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +29,37 @@ public class CardQueryService {
 
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
 
-        String normalizedKeyword = (StringUtils.hasText(keyword)) ? keyword.trim() : null;
+        // keyword는 공백이면 null로 처리
+        String normalizedKeyword = (keyword == null || keyword.trim().isEmpty())
+                ? null
+                : keyword.trim();
 
-        return cardQueryJpaRepository.searchCards(tagId, solveStatus, normalizedKeyword, pageable);
+        // userId가 null이면 전체 카드 조회
+        return cardQueryJpaRepository.searchCards(null, tagId, solveStatus, normalizedKeyword, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CardListItemResponse> getMyCards(
+            Long userId,
+            int page,
+            int size,
+            String sort,
+            String keyword,
+            SolveStatus solveStatus
+    ) {
+        Pageable pageable = PageRequest.of(
+                Math.max(page, 0),
+                Math.max(size, 1),
+                resolveSort(sort)
+        );
+
+        // keyword는 공백이면 null로 처리
+        String normalizedKeyword = (keyword == null || keyword.trim().isEmpty())
+                ? null
+                : keyword.trim();
+
+        // userId로 특정 사용자의 카드만 조회
+        return cardQueryJpaRepository.searchCards(userId, null, solveStatus, normalizedKeyword, pageable);
     }
 
     private Sort resolveSort(String sort) {

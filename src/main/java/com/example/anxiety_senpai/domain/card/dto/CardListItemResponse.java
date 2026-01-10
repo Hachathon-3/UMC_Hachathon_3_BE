@@ -14,5 +14,4 @@ public record CardListItemResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public record AuthorResponse(Long userId, String name) {}
 }
