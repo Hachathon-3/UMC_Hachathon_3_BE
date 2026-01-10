@@ -44,6 +44,17 @@ out/
 *.p12
 *.pfx
 
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+*.env
+
+### AWS Credentials ###
+.aws/
+aws-credentials.json
+aws-config.json
+
 ### Application Configuration Files (Sensitive) ###
 **/application-local.yaml
 **/application-local.yml
