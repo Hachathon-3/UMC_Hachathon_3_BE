@@ -27,7 +27,7 @@ public class UserController implements UserControllerDocs {
     @GetMapping("/home")
     @Override
     public ResponseEntity<ApiResponse<HomeResponse>> getHome(
-            @AuthenticationPrincipal User user
+            User user
     ) {
         if (user == null) {
             throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);

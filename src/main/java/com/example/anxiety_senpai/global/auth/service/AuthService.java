@@ -68,7 +68,7 @@ public class AuthService {
 
     // AccessToken 재발급
     @Transactional
-    public ResponseEntity<?> reissue(
+    public ResponseEntity<?> refresh(
             HttpServletRequest request,
             HttpServletResponse response
     ) {

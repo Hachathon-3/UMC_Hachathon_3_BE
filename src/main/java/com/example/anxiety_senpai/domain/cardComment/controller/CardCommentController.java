@@ -24,7 +24,7 @@ public class CardCommentController {
     @PostMapping
     public ApiResponse<CardCommentCreateResponse> createComment(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal User user,
+            User user,
             @RequestBody @Validated CardCommentCreateRequest request
     ) {
         Long userId = (user == null) ? null : user.getId();
@@ -38,7 +38,7 @@ public class CardCommentController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "latest") String sort,
-            @AuthenticationPrincipal User user
+            User user
     ) {
         Long userId = (user == null) ? null : user.getId();
         CardCommentListResponse response = cardCommentService.getComments(cardId, userId, page, size, sort);

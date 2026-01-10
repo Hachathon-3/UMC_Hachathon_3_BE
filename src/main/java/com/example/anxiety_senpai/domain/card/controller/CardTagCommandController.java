@@ -25,7 +25,7 @@ public class CardTagCommandController {
     @PutMapping
     public ApiResponse<CardTagUpdateResponse> replaceTags(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal User user,
+            User user,
             @RequestBody @Validated CardTagUpdateRequest request
     ) {
         Long userId = user == null ? null : user.getId();
@@ -37,7 +37,7 @@ public class CardTagCommandController {
     public ApiResponse<CardTagAddResponse> addTag(
             @PathVariable Long cardId,
             @PathVariable Long tagId,
-            @AuthenticationPrincipal User user,
+            User user,
             @RequestParam(name = "failOnDuplicate", defaultValue = "false") boolean failOnDuplicate
     ) {
         Long userId = user == null ? null : user.getId();
@@ -49,7 +49,7 @@ public class CardTagCommandController {
     public ApiResponse<CardTagRemoveResponse> removeTag(
             @PathVariable Long cardId,
             @PathVariable Long tagId,
-            @AuthenticationPrincipal User user,
+            User user,
             @RequestParam(name = "failIfMissing", defaultValue = "false") boolean failIfMissing
     ) {
         Long userId = user == null ? null : user.getId();

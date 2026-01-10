@@ -23,7 +23,7 @@ public class CardDetailController {
     @GetMapping("/{cardId}")
     public ApiResponse<CardDetailResponse> getCardDetail(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal User user
+            User user
     ) {
         Long userId = (user == null) ? null : user.getId();
 

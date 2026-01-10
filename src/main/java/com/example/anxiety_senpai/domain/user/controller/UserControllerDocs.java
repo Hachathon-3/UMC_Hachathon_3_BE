@@ -14,7 +14,7 @@ public interface UserControllerDocs  {
 
     @GetMapping("/home")
     ResponseEntity<ApiResponse<HomeResponse>> getHome(
-            @AuthenticationPrincipal User user
+            User user
     );
 
     @Operation(

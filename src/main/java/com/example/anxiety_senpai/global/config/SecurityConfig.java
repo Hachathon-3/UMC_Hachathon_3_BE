@@ -17,22 +17,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+        private final JwtAuthFilter jwtAuthFilter;
+        private final OAuth2LoginSuccessHandler successHandler;
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final OAuth2LoginSuccessHandler successHandler;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
-    private static final String[] PERMIT_URLS = {
-            "/**",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/swagger/login/**",
-            "/oauth2/authorization/**",
-            "/login/oauth2/code/**",
-            "/api/auth/logout",
-            "/api/auth/refresh"
-    };
+        private static final String[] PERMIT_URLS = {
+                "/**",
+                "/health",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger/login/**",
+                "/oauth2/authorization/**",
+                "/login/oauth2/code/**",
+                "/api/auth/logout",
+                "/api/auth/refresh"
+        };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,7 +40,8 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -50,14 +51,16 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService)
+                        )
+                        .successHandler(successHandler)
+                )
+
 
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                )
-
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PERMIT_URLS).permitAll()
-                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -65,3 +68,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

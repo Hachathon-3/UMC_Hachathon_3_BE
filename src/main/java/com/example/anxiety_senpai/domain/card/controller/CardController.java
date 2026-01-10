@@ -24,7 +24,7 @@ public class CardController {
 
     @PostMapping
     public ApiResponse<CardCreateResponse> createCard(
-            @AuthenticationPrincipal User user,
+            User user,
             @Valid @RequestBody CardCreateRequest request
     ) {
         Long cardId = cardService.create(user.getId(), request);

@@ -24,7 +24,7 @@ public class MyCardQueryController {
 
     @GetMapping
     public ApiResponse<PageResponse<CardListItemResponse>> getMyCards(
-            @AuthenticationPrincipal User user,
+            User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "latest") String sort,

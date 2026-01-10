@@ -25,7 +25,7 @@ public class ReactionController {
     @PostMapping
     public ApiResponse<ReactionResponse> react(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal User user
+            User user
     ) {
         Long userId = (user == null) ? null : user.getId();
         ReactionResponse response = reactionService.reactToCard(cardId, userId);
@@ -35,7 +35,7 @@ public class ReactionController {
     @GetMapping("/summary")
     public ApiResponse<ReactionSummaryResponse> getSummary(
             @PathVariable Long cardId,
-            @AuthenticationPrincipal User user
+            User user
     ) {
         Long userId = (user == null) ? null : user.getId();
         ReactionSummaryResponse response = reactionService.getCardReactionSummary(cardId, userId);
