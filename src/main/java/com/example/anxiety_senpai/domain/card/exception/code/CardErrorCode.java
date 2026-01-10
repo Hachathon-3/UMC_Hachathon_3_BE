@@ -17,10 +17,12 @@ public enum CardErrorCode implements BaseCode {
     INVALID_TAG_NAME(HttpStatus.BAD_REQUEST,
             "CARD400_1",
             "유효하지 않은 태그 이름입니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND,
+            "CARD404_2",
+            "게시물을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus status;
     private final String code;
     private final String message;
 }
-
