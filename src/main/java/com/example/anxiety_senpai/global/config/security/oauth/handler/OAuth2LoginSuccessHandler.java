@@ -42,7 +42,10 @@ public class OAuth2LoginSuccessHandler
         SecurityContextHolder.clearContext();
 
         // 프론트엔드로 리다이렉트
-        String redirectUrl = "http://54.242.218.23:8080/auth/callback";
-        response.sendRedirect(redirectUrl);
+        getRedirectStrategy().sendRedirect(
+                request,
+                response,
+                "http://54.242.218.23:8080/auth/callback"
+        );
     }
 }
