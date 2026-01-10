@@ -65,7 +65,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
           # SSH 키 파일 생성
-          echo "${{EC2_SSH_KEY}}" > private_key.pem
+          echo "${{secrets.EC2_SSH_KEY}}" > private_key.pem
           chmod 600 private_key.pem
           
           # JAR 파일 찾기 (plain JAR 제외)
