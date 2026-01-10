@@ -16,10 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-                "https://localhost:5173",
-                "https://localhost:5174",
-                "https://econflip.vercel.app",
-                "https://econflip.gyeonseo.com"
+                "http://54.242.218.23:8080"
         ));
 
         config.setAllowedMethods(List.of(

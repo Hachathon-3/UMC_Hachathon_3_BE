@@ -25,7 +25,7 @@ spring:
           naver:
             client-id: voy9cwK7bNh7yql_5RdA
             client-secret: AfP8LtrzUy
-            redirect-uri: "http://ec2-54-242-218-23.compute-1.amazonaws.com/login/oauth2/code/naver"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
             client-name: Naver
 
@@ -62,8 +62,8 @@ server:
     session:
       cookie:
         same-site: lax
-        secure: false
+        secure: true
 
 app:
   frontend:
-    url:  http://ec2-54-242-218-23.compute-1.amazonaws.com
+    url: http://54.242.218.23:8080
