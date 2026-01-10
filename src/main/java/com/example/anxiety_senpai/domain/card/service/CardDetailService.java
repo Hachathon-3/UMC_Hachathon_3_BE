@@ -1,6 +1,8 @@
 package com.example.anxiety_senpai.domain.card.service;
 
+import com.example.anxiety_senpai.domain.card.dto.AuthorResponse;
 import com.example.anxiety_senpai.domain.card.dto.CardDetailResponse;
+import com.example.anxiety_senpai.domain.card.dto.TagResponse;
 import com.example.anxiety_senpai.domain.card.entity.Card;
 import com.example.anxiety_senpai.domain.card.enums.CardStatus;
 import com.example.anxiety_senpai.domain.card.exception.CardException;
@@ -36,8 +38,8 @@ public class CardDetailService {
         long reactionCount = reactionRepository.countByCardId(cardId);
         boolean liked = userId != null && !reactionRepository.findByCardIdAndUserId(cardId, userId).isEmpty();
 
-        List<CardDetailResponse.TagResponse> tags = card.getCardTags().stream()
-                .map(ct -> new CardDetailResponse.TagResponse(ct.getTag().getId(), ct.getTag().getName()))
+        List<TagResponse> tags = card.getCardTags().stream()
+                .map(ct -> new TagResponse(ct.getTag().getId(), ct.getTag().getName()))
                 .distinct()
                 .toList();
 
@@ -48,7 +50,7 @@ public class CardDetailService {
                 card.getStatus(),
                 card.getSolveStatus(),
                 Boolean.TRUE.equals(card.getAllowComment()),
-                new CardDetailResponse.AuthorResponse(card.getUser().getId(), card.getUser().getName()),
+                new AuthorResponse(card.getUser().getId(), card.getUser().getName()),
                 tags,
                 reactionCount,
                 liked,

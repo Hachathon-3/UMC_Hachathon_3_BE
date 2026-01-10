@@ -4,6 +4,7 @@ import com.example.anxiety_senpai.domain.reaction.dto.ReactionResponse;
 import com.example.anxiety_senpai.domain.reaction.dto.ReactionSummaryResponse;
 import com.example.anxiety_senpai.domain.reaction.exception.code.ReactionSuccessCode;
 import com.example.anxiety_senpai.domain.reaction.service.ReactionService;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
 import com.example.anxiety_senpai.global.auth.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -23,30 +24,20 @@ public class ReactionController {
 
     @PostMapping
     public ApiResponse<ReactionResponse> react(
-            @PathVariable(required = false) Long cardId,
-            @PathVariable(required = false) Long commentId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @PathVariable Long cardId,
+            @AuthenticationPrincipal User user
     ) {
-        Long userId = (user == null) ? null : user.getUserId();
-        if (commentId != null) {
-            ReactionResponse response = reactionService.reactToComment(commentId, userId);
-            return ApiResponse.onSuccess(ReactionSuccessCode.COMMENT_CREATED, response);
-        }
+        Long userId = (user == null) ? null : user.getId();
         ReactionResponse response = reactionService.reactToCard(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.CREATED, response);
     }
 
     @GetMapping("/summary")
     public ApiResponse<ReactionSummaryResponse> getSummary(
-            @PathVariable(required = false) Long cardId,
-            @PathVariable(required = false) Long commentId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @PathVariable Long cardId,
+            @AuthenticationPrincipal User user
     ) {
-        Long userId = (user == null) ? null : user.getUserId();
-        if (commentId != null) {
-            ReactionSummaryResponse response = reactionService.getCommentReactionSummary(commentId, userId);
-            return ApiResponse.onSuccess(ReactionSuccessCode.COMMENT_SUMMARY_OK, response);
-        }
+        Long userId = (user == null) ? null : user.getId();
         ReactionSummaryResponse response = reactionService.getCardReactionSummary(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.SUMMARY_OK, response);
     }

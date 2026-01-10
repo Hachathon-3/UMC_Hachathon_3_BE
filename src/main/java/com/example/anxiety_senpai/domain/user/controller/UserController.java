@@ -1,6 +1,7 @@
 package com.example.anxiety_senpai.domain.user.controller;
 
 import com.example.anxiety_senpai.domain.user.dto.HomeResponse;
+import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.domain.user.service.UserService;
 import com.example.anxiety_senpai.global.apiPayload.code.GeneralErrorCode;
 import com.example.anxiety_senpai.global.apiPayload.code.GeneralSuccessCode;
@@ -26,12 +27,12 @@ public class UserController implements UserControllerDocs {
     @GetMapping("/home")
     @Override
     public ResponseEntity<ApiResponse<HomeResponse>> getHome(
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal User user
     ) {
         if (user == null) {
             throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);
         }
-        Long userId = user.getUserId();
+        Long userId = user.getId();
         HomeResponse body = userService.getHome(userId);
         return ResponseEntity.ok(ApiResponse.onSuccess(GeneralSuccessCode.FOUND, body));
     }

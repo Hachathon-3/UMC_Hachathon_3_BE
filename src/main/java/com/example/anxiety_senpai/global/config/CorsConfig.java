@@ -16,7 +16,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(List.of(
-                "http://54.242.218.23:8080"
+                "http://54.242.218.23:8080",
+                "http://localhost:8080"
         ));
 
         config.setAllowedMethods(List.of(
@@ -27,7 +28,7 @@ public class CorsConfig {
         config.setAllowedHeaders(List.of("*"));
 
         // 쿠키/JWT 인증 사용 시 필수
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         config.setExposedHeaders(List.of(
                 "Set-Cookie",
