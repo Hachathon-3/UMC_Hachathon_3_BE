@@ -1,6 +1,7 @@
 package com.example.anxiety_senpai.domain.card.controller;
 
 import com.example.anxiety_senpai.domain.tag.dto.CardTagAddResponse;
+import com.example.anxiety_senpai.domain.tag.dto.CardTagRemoveResponse;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateRequest;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateResponse;
 import com.example.anxiety_senpai.domain.tag.exception.code.TagSuccessCode;
@@ -41,5 +42,17 @@ public class CardTagCommandController {
         Long userId = user == null ? null : user.getUserId();
         CardTagAddResponse response = tagCommandService.addTagToCard(cardId, userId, tagId, failOnDuplicate);
         return ApiResponse.onSuccess(TagSuccessCode.CARD_TAG_ADDED, response);
+    }
+
+    @DeleteMapping("/{tagId}")
+    public ApiResponse<CardTagRemoveResponse> removeTag(
+            @PathVariable Long cardId,
+            @PathVariable Long tagId,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(name = "failIfMissing", defaultValue = "false") boolean failIfMissing
+    ) {
+        Long userId = user == null ? null : user.getUserId();
+        CardTagRemoveResponse response = tagCommandService.removeTagFromCard(cardId, userId, tagId, failIfMissing);
+        return ApiResponse.onSuccess(TagSuccessCode.CARD_TAG_REMOVED, response);
     }
 }

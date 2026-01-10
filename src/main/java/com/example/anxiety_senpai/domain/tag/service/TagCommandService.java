@@ -7,6 +7,7 @@ import com.example.anxiety_senpai.domain.card.repository.CardRepository;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagAddResponse;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateRequest;
 import com.example.anxiety_senpai.domain.tag.dto.CardTagUpdateResponse;
+import com.example.anxiety_senpai.domain.tag.dto.CardTagRemoveResponse;
 import com.example.anxiety_senpai.domain.tag.entity.CardTag;
 import com.example.anxiety_senpai.domain.tag.entity.Tag;
 import com.example.anxiety_senpai.domain.tag.exception.TagException;
@@ -86,5 +87,29 @@ public class TagCommandService {
 
         card.addTag(tag);
         return new CardTagAddResponse(card.getId(), tagId);
+    }
+
+    @Transactional
+    public CardTagRemoveResponse removeTagFromCard(Long cardId, Long userId, Long tagId, boolean failIfMissing) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardException(CardErrorCode.NOT_FOUND));
+
+        assertOwnerOrAdmin(card, userId);
+
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new TagException(TagErrorCode.TAG_NOT_FOUND));
+
+        boolean linked = card.getCardTags().stream()
+                .anyMatch(ct -> ct.getTag().getId().equals(tagId));
+        if (!linked) {
+            if (failIfMissing) {
+                throw new TagException(TagErrorCode.CARD_TAG_NOT_FOUND);
+            }
+            return new CardTagRemoveResponse(card.getId(), tagId);
+        }
+
+        // 실제 제거: Card#clearTags는 전체이므로, 선택적으로 제거하기 위해 카드의 CardTag 리스트를 필터링
+        card.getCardTags().removeIf(ct -> ct.getTag().getId().equals(tagId));
+        return new CardTagRemoveResponse(card.getId(), tagId);
     }
 }
