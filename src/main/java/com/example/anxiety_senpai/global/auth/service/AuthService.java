@@ -29,24 +29,30 @@ public class AuthService {
     // OAuth 로그인 성공 후 AccessToken 생성
     @Transactional
     public void login(User user, HttpServletResponse response) {
-        Long userId = user.getId();
-        String role = user.getRole().name();
+        try{
+            Long userId = user.getId();
+            String role = user.getRole().name();
 
-        String accessToken = jwtUtil.createAccessToken(userId, role);
-        String refreshToken = jwtUtil.createRefreshToken(userId);
+            String accessToken = jwtUtil.createAccessToken(userId, role);
+            String refreshToken = jwtUtil.createRefreshToken(userId);
 
-        // refresh token DB 저장 (있으면 갱신)
-        refreshTokenRepository.findById(userId)
-                .ifPresentOrElse(
-                        saved -> saved.updateToken(refreshToken),
-                        () -> refreshTokenRepository.save(
-                                RefreshToken.of(userId, refreshToken)
-                        )
-                );
+            // refresh token DB 저장 (있으면 갱신)
+            refreshTokenRepository.findById(userId)
+                    .ifPresentOrElse(
+                            saved -> saved.updateToken(refreshToken),
+                            () -> refreshTokenRepository.save(
+                                    RefreshToken.of(userId, refreshToken)
+                            )
+                    );
 
-        // 쿠키 설정
-        response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());
-        response.addHeader("Set-Cookie", CookieUtil.refreshToken(refreshToken).toString());
+            // 쿠키 설정
+            response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());
+            response.addHeader("Set-Cookie", CookieUtil.refreshToken(refreshToken).toString());
+        }
+        catch (Exception e){
+            throw new AuthException(AuthErrorCode.EXPIRED_ACCESS_TOKEN);
+        }
+
     }
 
     @Transactional

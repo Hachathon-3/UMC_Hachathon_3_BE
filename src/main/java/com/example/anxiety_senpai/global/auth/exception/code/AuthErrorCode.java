@@ -24,6 +24,9 @@ public enum AuthErrorCode implements BaseCode {
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED,
             "AUTH401_3",
             "만료된 JWT 토큰입니다."),
+    EXPIRED_ACCESS_TOKEN(HttpStatus.BAD_REQUEST,
+            "AUTH400_2",
+            "Access 토큰 오류입니다."),
     ;
     private final HttpStatus status;
     private final String code;
