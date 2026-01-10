@@ -38,10 +38,15 @@ public class ReactionController {
 
     @GetMapping("/summary")
     public ApiResponse<ReactionSummaryResponse> getSummary(
-            @PathVariable Long cardId,
+            @PathVariable(required = false) Long cardId,
+            @PathVariable(required = false) Long commentId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = (user == null) ? null : user.getUserId();
+        if (commentId != null) {
+            ReactionSummaryResponse response = reactionService.getCommentReactionSummary(commentId, userId);
+            return ApiResponse.onSuccess(ReactionSuccessCode.COMMENT_SUMMARY_OK, response);
+        }
         ReactionSummaryResponse response = reactionService.getCardReactionSummary(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.SUMMARY_OK, response);
     }

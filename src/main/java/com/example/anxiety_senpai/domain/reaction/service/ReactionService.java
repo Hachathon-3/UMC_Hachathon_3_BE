@@ -3,6 +3,8 @@ package com.example.anxiety_senpai.domain.reaction.service;
 import com.example.anxiety_senpai.domain.card.entity.Card;
 import com.example.anxiety_senpai.domain.card.enums.CardStatus;
 import com.example.anxiety_senpai.domain.card.repository.CardRepository;
+import com.example.anxiety_senpai.domain.cardComment.entity.CardComment;
+import com.example.anxiety_senpai.domain.cardComment.repository.CardCommentRepository;
 import com.example.anxiety_senpai.domain.reaction.dto.ReactionResponse;
 import com.example.anxiety_senpai.domain.reaction.dto.ReactionSummaryResponse;
 import com.example.anxiety_senpai.domain.reaction.entity.Reaction;
@@ -62,7 +64,18 @@ public class ReactionService {
         long count = reactionRepository.countByCardId(cardId);
         boolean myReacted = (userId != null) && reactionRepository.existsByCardIdAndUserId(cardId, userId);
 
-        return new ReactionSummaryResponse(cardId, count, myReacted);
+        return new ReactionSummaryResponse(cardId, null, count, myReacted);
+    }
+
+    @Transactional(readOnly = true)
+    public ReactionSummaryResponse getCommentReactionSummary(Long commentId, Long userId) {
+        CardComment comment = cardCommentRepository.findById(commentId)
+                .orElseThrow(() -> new ReactionException(ReactionErrorCode.NOT_FOUND_COMMENT));
+
+        long count = reactionRepository.countByCommentId(commentId);
+        boolean myReacted = (userId != null) && reactionRepository.existsByCardCommentIdAndUserId(commentId, userId);
+
+        return new ReactionSummaryResponse(null, commentId, count, myReacted);
     }
 
     @Transactional
