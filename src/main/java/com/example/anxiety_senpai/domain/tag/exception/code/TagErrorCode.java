@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum TagErrorCode implements BaseCode {
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "tag400", "잘못된 요청 파라미터입니다."),
-    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "card404", "게시물을 찾을 수 없습니다.");
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "card404", "게시물을 찾을 수 없습니다."),
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "tag404", "존재하지 않는 태그입니다."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "auth401", "인증이 필요합니다.");
 
     private final HttpStatus status;
     private final String code;
