@@ -46,13 +46,13 @@ public class Card {
     @Column(name = "content")
     private String content;
 
-//    /**
-//     * 게시물 상태 (ACTIVE/HIDDEN/DELETED)
-//     */
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "status", nullable = false, length = 20)
-//    @Builder.Default
-//    private CardStatus status = CardStatus.ACTIVE;
+    /**
+     * 게시물 상태 (ACTIVE/HIDDEN/DELETED)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private CardStatus status = CardStatus.ACTIVE;
 
     /**
      * 해결 상태 (SOLVED/UNSOLVED)
