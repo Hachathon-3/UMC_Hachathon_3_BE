@@ -13,6 +13,7 @@ import com.example.anxiety_senpai.domain.tag.entity.Tag;
 import com.example.anxiety_senpai.domain.tag.exception.TagException;
 import com.example.anxiety_senpai.domain.tag.exception.code.TagErrorCode;
 import com.example.anxiety_senpai.domain.tag.exception.code.TagSuccessCode;
+import com.example.anxiety_senpai.domain.tag.repository.TagRepository;
 import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.domain.user.enums.Role;
 import com.example.anxiety_senpai.domain.user.repository.UserRepository;
