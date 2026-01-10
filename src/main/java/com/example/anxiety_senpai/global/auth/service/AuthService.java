@@ -82,7 +82,7 @@ public class AuthService {
                         new AuthException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN));
 
         if (!saved.getToken().equals(refreshToken)) {
-            throw new AuthException(AuthErrorCode.NOT_FOUND);
+            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
         }
 
         User user = userRepository.findById(userId)

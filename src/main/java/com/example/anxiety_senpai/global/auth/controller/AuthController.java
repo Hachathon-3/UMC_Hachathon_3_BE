@@ -1,6 +1,8 @@
 package com.example.anxiety_senpai.global.auth.controller;
 
+import com.example.anxiety_senpai.domain.user.exception.UserException;
 import com.example.anxiety_senpai.global.apiPayload.handler.ApiResponse;
+import com.example.anxiety_senpai.global.auth.exception.AuthException;
 import com.example.anxiety_senpai.global.auth.exception.code.AuthSuccessCode;
 import com.example.anxiety_senpai.global.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +31,21 @@ public class AuthController implements AuthControllerDocs {
 
     @Override
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response){
-        return authService.refresh(request,response);
+    public ResponseEntity<?> refresh(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        try {
+            return authService.refresh(request, response);
+        } catch (AuthException e) {
+            return ResponseEntity
+                    .status(e.getCode().getStatus())
+                    .body(ApiResponse.onFailure(e.getCode(),e.getCode().getMessage()));
+        } catch (UserException e) {
+            return ResponseEntity
+                    .status(e.getCode().getStatus())
+                    .body(ApiResponse.onFailure(e.getCode(),e.getCode().getMessage()));
+        }
     }
 
     // 로그아웃
