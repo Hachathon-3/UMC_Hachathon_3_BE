@@ -64,81 +64,13 @@ jobs:
           EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          # SSH 키 파일 생성
-          echo "${{secrets.EC2_SSH_KEY}}" > private_key.pem
+          echo "$EC2_SSH_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
-          # JAR 파일 찾기 (plain JAR 제외)
           jar_file=$(find build/libs -name '*.jar' ! -name '*plain.jar' | head -n 1)
-          
-          if [ -z "$jar_file" ]; then
-            echo "Error: JAR file not found!"
-            exit 1
-          fi
-          
-          echo "Found JAR file: $jar_file"
-          
-          # application.yml을 임시 파일로 생성
-          echo "${{ secrets.APPLICATION_YML }}" > application.yml.tmp
-          
-          # EC2 서버에 디렉토리 생성 및 기존 프로세스 종료/백업
-          APP_DIR="/home/$EC2_USERNAME/anxiety-senpai"
-          ssh -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            $EC2_USERNAME@$EC2_HOST "
-            mkdir -p $APP_DIR &&
-            cd $APP_DIR || exit 1 &&
-            
-            # 기존 프로세스 종료
-            if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
-              echo 'Stopping existing application...'
-              pkill -f 'anxiety-senpai.jar' || true
-              sleep 5
-              
-              if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
-                pkill -9 -f 'anxiety-senpai.jar' || true
-                sleep 2
-              fi
-            fi &&
-            
-            # 기존 JAR 백업 (새 파일 전송 전에)
-            if [ -f anxiety-senpai.jar ]; then
-              mv anxiety-senpai.jar anxiety-senpai.jar.backup.\$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-            fi
+          scp -i private_key.pem -o StrictHostKeyChecking=no "$jar_file" $EC2_USERNAME@$EC2_HOST:/home/$EC2_USERNAME/anxiety-senpai.jar
+          ssh -i private_key.pem -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_HOST "
+            pgrep java | xargs -r kill -15  # 기존에 실행 중인 Java 프로세스 종료
+            sleep 10
+            nohup java -jar /home/$EC2_USERNAME/anxiety-senpai.jar > app.log 2>&1 &  # 새 버전 애플리케이션 실행
           "
-          
-          # JAR 파일 전송
-          scp -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$jar_file" \
-            $EC2_USERNAME@$EC2_HOST:$APP_DIR/anxiety-senpai.jar
-          
-          # application.yml 파일 전송
-          scp -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            application.yml.tmp \
-            $EC2_USERNAME@$EC2_HOST:$APP_DIR/application.yml
-          
-          # 애플리케이션 실행
-          ssh -i private_key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            $EC2_USERNAME@$EC2_HOST "
-            cd $APP_DIR || exit 1 &&
-            
-            # Spring Boot 애플리케이션 실행
-            echo 'Starting application...' &&
-            nohup java -jar -Dspring.config.location=file:./application.yml anxiety-senpai.jar > app.log 2>&1 &
-            
-            # 프로세스 시작 확인
-            sleep 5
-            if pgrep -f 'anxiety-senpai.jar' > /dev/null; then
-              echo 'Application started successfully!'
-              ps aux | grep java | grep -v grep
-              echo '--- Recent logs ---'
-              tail -20 app.log
-            else
-              echo 'Error: Application failed to start!'
-              echo '--- Full error log ---'
-              tail -50 app.log
-              exit 1
-            fi
-          "
-          
-          # 임시 파일 및 SSH 키 삭제
-          rm -f private_key.pem application.yml.tmp
+          rm -f private_key.pem  # 민감한
