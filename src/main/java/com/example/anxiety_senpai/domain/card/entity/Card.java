@@ -2,6 +2,8 @@ package com.example.anxiety_senpai.domain.card.entity;
 
 import com.example.anxiety_senpai.domain.card.enums.CardStatus;
 import com.example.anxiety_senpai.domain.card.enums.SolveStatus;
+import com.example.anxiety_senpai.domain.tag.entity.CardTag;
+import com.example.anxiety_senpai.domain.tag.entity.Tag;
 import com.example.anxiety_senpai.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -108,6 +110,21 @@ public class Card {
 //    @Builder.Default
 //    private List<Tag> tags = new ArrayList<>();
 
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CardTag> cardTags = new ArrayList<>();
+
+    public void addTag(Tag tag) {
+        // 중복 방지
+        boolean exists = cardTags.stream().anyMatch(ct -> ct.getTag().getId().equals(tag.getId()));
+        if (!exists) {
+            cardTags.add(CardTag.builder().card(this).tag(tag).build());
+        }
+    }
+
+    public void clearTags() {
+        cardTags.clear(); // orphanRemoval=true 이면 연결 row 삭제
+    }
     /* ---------- JPA 콜백 ---------- */
 
     @PrePersist
