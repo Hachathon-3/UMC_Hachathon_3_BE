@@ -43,6 +43,14 @@ public class User extends BaseEntity {
     @Builder.Default
     private Role role = USER;
 
+    @Column(name = "progress_percent", nullable = false)
+    @Builder.Default
+    private Integer progressPercent = 0;
+
+    @Column(name = "catnip_count", nullable = false)
+    @Builder.Default
+    private Integer catnipCount = 0;
+
     public static User createSocialUser(
             SocialType socialType,
             String socialId
@@ -51,6 +59,16 @@ public class User extends BaseEntity {
                 .socialType(socialType)
                 .socialId(socialId)
                 .role(USER)
+                .progressPercent(0)
+                .catnipCount(0)
                 .build();
+    }
+
+    public void addProgress(int delta) {
+        if (delta <= 0) return;
+        int updated = this.progressPercent + delta;
+        int gainedCatnip = updated / 100;
+        this.progressPercent = updated % 100;
+        this.catnipCount += gainedCatnip;
     }
 }
