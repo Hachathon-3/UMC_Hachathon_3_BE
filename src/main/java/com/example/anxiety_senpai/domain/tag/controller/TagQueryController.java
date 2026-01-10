@@ -28,4 +28,3 @@ public class TagQueryController {
         return ApiResponse.onSuccess(GeneralSuccessCode.FOUND, response);
     }
 }
-

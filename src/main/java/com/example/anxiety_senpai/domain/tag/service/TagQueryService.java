@@ -1,6 +1,8 @@
 package com.example.anxiety_senpai.domain.tag.service;
 
 import com.example.anxiety_senpai.domain.card.dto.PageResponse;
+import com.example.anxiety_senpai.domain.card.repository.CardRepository;
+import com.example.anxiety_senpai.domain.tag.dto.CardTagListResponse;
 import com.example.anxiety_senpai.domain.tag.dto.TagListItemResponse;
 import com.example.anxiety_senpai.domain.tag.dto.TagListResponse;
 import com.example.anxiety_senpai.domain.tag.entity.Tag;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TagQueryService {
 
     private final TagRepository tagRepository;
+    private final CardRepository cardRepository;
 
     @Transactional(readOnly = true)
     public TagListResponse getTags(String keyword, int page, int size, String sort) {
@@ -47,5 +50,15 @@ public class TagQueryService {
 
         return TagListResponse.of(PageResponse.of(mapped));
     }
-}
 
+    @Transactional(readOnly = true)
+    public CardTagListResponse getCardTags(Long cardId) {
+        var card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new TagException(TagErrorCode.CARD_NOT_FOUND));
+
+        var tags = tagRepository.findByCardId(cardId).stream()
+                .map(t -> new CardTagListResponse.TagSimpleResponse(t.getId(), t.getName()))
+                .toList();
+        return new CardTagListResponse(card.getId(), tags);
+    }
+}

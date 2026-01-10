@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum TagErrorCode implements BaseCode {
-    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "tag400", "잘못된 요청 파라미터입니다.");
+    INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "tag400", "잘못된 요청 파라미터입니다."),
+    CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "card404", "게시물을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
     private final String message;
 }
-
