@@ -13,7 +13,7 @@ import com.example.anxiety_senpai.domain.cardComment.exception.code.CardCommentE
 import com.example.anxiety_senpai.domain.cardComment.repository.CardCommentRepository;
 import com.example.anxiety_senpai.domain.card.dto.PageResponse;
 import com.example.anxiety_senpai.domain.cardComment.enums.CardCommentStatus;
-import com.example.anxiety_senpai.domain.reaction.enums.ReactionType;
+import com.example.anxiety_senpai.domain.reaction.repository.ReactionRepository;
 import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +34,7 @@ public class CardCommentService {
     private final CardRepository cardRepository;
     private final CardCommentRepository cardCommentRepository;
     private final UserRepository userRepository;
+    private final ReactionRepository reactionRepository;
 
     @Transactional
     public CardCommentCreateResponse createComment(Long cardId, Long userId, CardCommentCreateRequest request) {
@@ -84,22 +85,23 @@ public class CardCommentService {
 
         Page<CardComment> commentPage = cardCommentRepository.findByCardIdAndStatus(cardId, CardCommentStatus.ACTIVE, pageable);
 
-        Map<Long, Map<ReactionType, Long>> summaryByComment = Map.of();
-        Map<Long, Set<ReactionType>> myReactionsByComment = Map.of();
-        // Reaction per comment not implemented in current schema; return empty aggregates.
+        Page<CardCommentQueryResponse> mapped = commentPage.map(comment -> {
+            long reactionCount = reactionRepository.countByCommentId(comment.getId());
+            boolean liked = userId != null && !reactionRepository.findByCommentIdAndUserId(comment.getId(), userId).isEmpty();
 
-        Page<CardCommentQueryResponse> mapped = commentPage.map(comment -> new CardCommentQueryResponse(
-                comment.getId(),
-                comment.getCard().getId(),
-                comment.getContent(),
-                comment.getStatus(),
-                new CardCommentQueryResponse.Author(comment.getUser().getId(), comment.getUser().getName()),
-                summaryByComment.getOrDefault(comment.getId(), Map.of()),
-                myReactionsByComment.getOrDefault(comment.getId(), Set.of()),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-                comment.getDeletedAt()
-        ));
+            return new CardCommentQueryResponse(
+                    comment.getId(),
+                    comment.getCard().getId(),
+                    comment.getContent(),
+                    comment.getStatus(),
+                    new CardCommentQueryResponse.Author(comment.getUser().getId(), comment.getUser().getName()),
+                    reactionCount,
+                    liked,
+                    comment.getCreatedAt(),
+                    comment.getUpdatedAt(),
+                    comment.getDeletedAt()
+            );
+        });
 
         return CardCommentListResponse.of(PageResponse.of(mapped));
     }

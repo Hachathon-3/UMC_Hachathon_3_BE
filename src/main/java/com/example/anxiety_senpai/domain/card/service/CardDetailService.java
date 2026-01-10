@@ -6,7 +6,6 @@ import com.example.anxiety_senpai.domain.card.enums.CardStatus;
 import com.example.anxiety_senpai.domain.card.exception.CardException;
 import com.example.anxiety_senpai.domain.card.exception.code.CardErrorCode;
 import com.example.anxiety_senpai.domain.card.repository.CardDetailQueryRepository;
-import com.example.anxiety_senpai.domain.reaction.enums.ReactionType;
 import com.example.anxiety_senpai.domain.reaction.repository.ReactionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,16 +33,8 @@ public class CardDetailService {
             throw new CardException(CardErrorCode.NOT_FOUND);
         }
 
-        Map<ReactionType, Long> summary = reactionRepository.countSummaryByCardId(cardId)
-                .stream()
-                .collect(Collectors.toMap(
-                        ReactionRepository.ReactionSummaryView::type,
-                        ReactionRepository.ReactionSummaryView::count
-                ));
-
-        List<ReactionType> myReactions = (userId == null)
-                ? List.of()
-                : reactionRepository.findMyReactionsOnCard(cardId, userId);
+        long reactionCount = reactionRepository.countByCardId(cardId);
+        boolean liked = userId != null && !reactionRepository.findByCardIdAndUserId(cardId, userId).isEmpty();
 
         List<CardDetailResponse.TagResponse> tags = card.getCardTags().stream()
                 .map(ct -> new CardDetailResponse.TagResponse(ct.getTag().getId(), ct.getTag().getName()))
@@ -59,12 +50,11 @@ public class CardDetailService {
                 Boolean.TRUE.equals(card.getAllowComment()),
                 new CardDetailResponse.AuthorResponse(card.getUser().getId(), card.getUser().getName()),
                 tags,
-                summary,
-                myReactions,
+                reactionCount,
+                liked,
                 card.getCreatedAt(),
                 card.getUpdatedAt(),
                 null
         );
     }
 }
-
