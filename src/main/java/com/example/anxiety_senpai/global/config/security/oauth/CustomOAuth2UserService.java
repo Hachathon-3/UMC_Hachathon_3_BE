@@ -74,9 +74,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             String socialId = idObj.toString();
 
-            Map<String, Object> kakaoAccount =
-                    (Map<String, Object>) attributes.get("kakao_account");
-
             User user = userRepository
                     .findBySocialTypeAndSocialId(SocialType.KAKAO, socialId)
                     .orElseGet(() ->

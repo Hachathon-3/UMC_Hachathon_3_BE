@@ -20,6 +20,9 @@ public enum CardErrorCode implements BaseCode {
     NOT_FOUND(HttpStatus.NOT_FOUND,
             "CARD404_2",
             "게시물을 찾을 수 없습니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN,
+            "CARD403_1",
+            "게시물에 대한 권한이 없습니다."),
     ;
 
     private final HttpStatus status;

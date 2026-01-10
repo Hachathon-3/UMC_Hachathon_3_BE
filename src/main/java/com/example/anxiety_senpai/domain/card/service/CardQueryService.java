@@ -23,11 +23,11 @@ public class CardQueryService {
             Long tagId,
             SolveStatus solveStatus
     ) {
-        Pageable pageable = PageRequest.of(
-                Math.max(page, 0),
-                Math.max(size, 1),
-                resolveSort(sort)
-        );
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Invalid paging parameters");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
 
         // keyword는 공백이면 null로 처리
         String normalizedKeyword = (keyword == null || keyword.trim().isEmpty())
