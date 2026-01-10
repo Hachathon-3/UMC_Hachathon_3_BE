@@ -42,8 +42,7 @@ public class Card {
     @Column(name = "title", length = 50)
     private String title;
 
-    @Lob
-    @Column(name = "content")
+    @Column(name = "content", length = 4000)
     private String content;
 
     /**

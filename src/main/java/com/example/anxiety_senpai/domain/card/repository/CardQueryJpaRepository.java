@@ -18,7 +18,7 @@ public interface CardQueryJpaRepository extends JpaRepository<Card, Long> {
                     substring(c.content, 1, 60),
                     c.solveStatus,
                     c.allowComment,
-                    new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse.AuthorResponse(u.id, u.name),
+                    new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse$AuthorResponse(u.id, u.name),
                     c.createdAt,
                     c.updatedAt
                 )
@@ -52,6 +52,51 @@ public interface CardQueryJpaRepository extends JpaRepository<Card, Long> {
     )
     Page<CardListItemResponse> searchCards(
             @Param("tagId") Long tagId,
+            @Param("solveStatus") SolveStatus solveStatus,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    @Query(
+            value = """
+                select distinct new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse(
+                    c.id,
+                    c.title,
+                    substring(c.content, 1, 60),
+                    c.solveStatus,
+                    c.allowComment,
+                    new com.example.anxiety_senpai.domain.card.dto.CardListItemResponse$AuthorResponse(u.id, u.name),
+                    c.createdAt,
+                    c.updatedAt
+                )
+                from Card c
+                join c.user u
+                left join c.cardTags ct
+                left join ct.tag t
+                where c.status = com.example.anxiety_senpai.domain.card.enums.CardStatus.ACTIVE
+                  and c.user.id = :userId
+                  and (:solveStatus is null or c.solveStatus = :solveStatus)
+                  and (
+                        :keyword is null
+                        or lower(c.title) like lower(concat('%', :keyword, '%'))
+                        or lower(c.content) like lower(concat('%', :keyword, '%'))
+                  )
+                """,
+            countQuery = """
+                select count(distinct c.id)
+                from Card c
+                where c.status = com.example.anxiety_senpai.domain.card.enums.CardStatus.ACTIVE
+                  and c.user.id = :userId
+                  and (:solveStatus is null or c.solveStatus = :solveStatus)
+                  and (
+                        :keyword is null
+                        or lower(c.title) like lower(concat('%', :keyword, '%'))
+                        or lower(c.content) like lower(concat('%', :keyword, '%'))
+                  )
+                """
+    )
+    Page<CardListItemResponse> searchMyCards(
+            @Param("userId") Long userId,
             @Param("solveStatus") SolveStatus solveStatus,
             @Param("keyword") String keyword,
             Pageable pageable

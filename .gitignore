@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+.yaml
+.env
+# Ignore application configuration
+src/main/resources/application.yaml
