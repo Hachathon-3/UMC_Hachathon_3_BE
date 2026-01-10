@@ -28,20 +28,12 @@ public class AuthService {
 
     // OAuth 로그인 성공 후 AccessToken 생성
     @Transactional
-    public void login(
-            User user,
-            HttpServletResponse response
-    ) {
+    public void login(User user, HttpServletResponse response) {
         Long userId = user.getId();
         String role = user.getRole().name();
 
-        // access token 발급
-        String accessToken =
-                jwtUtil.createAccessToken(userId, role);
-
-        // refresh token 발급
-        String refreshToken =
-                jwtUtil.createRefreshToken(userId);
+        String accessToken = jwtUtil.createAccessToken(userId, role);
+        String refreshToken = jwtUtil.createRefreshToken(userId);
 
         // refresh token DB 저장 (있으면 갱신)
         refreshTokenRepository.findById(userId)
@@ -52,68 +44,47 @@ public class AuthService {
                         )
                 );
 
-        // 쿠키 설정 (여러 쿠키를 개별 헤더로 추가)
-        String accessCookie = CookieUtil.accessToken(accessToken).toString();
-        String refreshCookie = CookieUtil.refreshToken(refreshToken).toString();
-
-        response.addHeader("Set-Cookie", accessCookie);
-        response.addHeader("Set-Cookie", refreshCookie);
-    }
-
-    // AccessToken 재발급
-    @Transactional
-    public ResponseEntity<?> refresh(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        // refresh 토큰 쿠키 확인
-        String refreshToken = CookieUtil.get(request, "refreshToken");
-        if (refreshToken == null) {
-            throw new AuthException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN);
-        }
-
-        // refresh JWT 검증
-        Claims claims = jwtUtil.validateToken(refreshToken);
-        Long userId = Long.valueOf(claims.getSubject());
-
-        // DB에 저장된 refresh 토큰 확인
-        RefreshToken saved = refreshTokenRepository.findById(userId)
-                .orElseThrow(() ->
-                        new AuthException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN));
-
-        if (!saved.getToken().equals(refreshToken)) {
-            throw new AuthException(AuthErrorCode.INVALID_TOKEN);
-        }
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
-        String newAccess =
-                jwtUtil.createAccessToken(userId, user.getRole().name());
-
-        // (권장) Refresh Token 회전
-        String newRefresh =
-                jwtUtil.createRefreshToken(userId);
-        saved.updateToken(newRefresh);
-
-        // 쿠키 재설정
-        response.addHeader(
-                "Set-Cookie",
-                CookieUtil.accessToken(newAccess).toString()
-        );
-        response.addHeader(
-                "Set-Cookie",
-                CookieUtil.refreshToken(newRefresh).toString()
-        );
-
-        return ResponseEntity.ok().build();
+        // 쿠키 설정
+        response.addHeader("Set-Cookie", CookieUtil.accessToken(accessToken).toString());
+        response.addHeader("Set-Cookie", CookieUtil.refreshToken(refreshToken).toString());
     }
 
     @Transactional
-    public void logout(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        // RefreshToken이 있으면 DB에서 삭제
+    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String refreshToken = CookieUtil.get(request, "refreshToken");
+            if (refreshToken == null)
+                return ResponseEntity.status(401).body("Refresh token not found");
+
+            Claims claims = jwtUtil.validateToken(refreshToken);
+            Long userId = Long.valueOf(claims.getSubject());
+
+            RefreshToken saved = refreshTokenRepository.findById(userId).orElse(null);
+            if (saved == null || !saved.getToken().equals(refreshToken))
+                return ResponseEntity.status(401).body("Invalid refresh token");
+
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) return ResponseEntity.status(404).body("User not found");
+
+            String newAccess = jwtUtil.createAccessToken(userId, user.getRole().name());
+            String newRefresh = jwtUtil.createRefreshToken(userId);
+            saved.updateToken(newRefresh);
+
+            response.addHeader("Set-Cookie", CookieUtil.accessToken(newAccess).toString());
+            response.addHeader("Set-Cookie", CookieUtil.refreshToken(newRefresh).toString());
+
+            return ResponseEntity.ok().build();
+
+        } catch (AuthException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            // 그 외 예기치 않은 오류
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         try {
             String refreshToken = CookieUtil.get(request, "refreshToken");
             if (refreshToken != null) {
@@ -121,18 +92,12 @@ public class AuthService {
                 Long userId = Long.valueOf(claims.getSubject());
                 refreshTokenRepository.deleteById(userId);
             }
-        } catch (AuthException e) {
-            // 토큰이 만료되었거나 유효하지 않으면 무시 (쿠키만 삭제)
+        } catch (Exception ignored) {
         }
 
-        // 쿠키 삭제
-        response.addHeader(
-                "Set-Cookie",
-                CookieUtil.delete("accessToken").toString()
-        );
-        response.addHeader(
-                "Set-Cookie",
-                CookieUtil.delete("refreshToken").toString()
-        );
+        response.addHeader("Set-Cookie", CookieUtil.delete("accessToken").toString());
+        response.addHeader("Set-Cookie", CookieUtil.delete("refreshToken").toString());
+
+        return ResponseEntity.ok().build();
     }
 }

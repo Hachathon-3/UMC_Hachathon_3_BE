@@ -22,9 +22,7 @@ public interface AuthControllerDocs {
     아래 URL로 페이지 이동(redirect)시키면
     네이버 로그인이 시작됩니다.
 
-    [개발 환경]
-    http://localhost:8080/oauth2/authorization/naver
-    [운영 환경]
+    http://54.242.218.23:8080/oauth2/authorization/naver
     """
     )
     default void naverLoginInfo(){}
@@ -39,9 +37,7 @@ public interface AuthControllerDocs {
     아래 URL로 페이지 이동(redirect)시키면
     카카오 로그인이 시작됩니다.
 
-    [개발 환경]
-    http://localhost:8080/oauth2/authorization/kakao
-    [운영 환경]
+    http://54.242.218.23:8080/oauth2/authorization/kakao
     """
     )
     default void kakaoLoginInfo(){}
