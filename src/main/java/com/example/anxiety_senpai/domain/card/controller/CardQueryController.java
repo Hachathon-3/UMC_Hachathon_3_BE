@@ -16,18 +16,18 @@ public class CardQueryController {
 
     private final CardQueryService cardQueryService;
 
-//    @GetMapping
-//    public ApiResponse<PageResponse<CardListItemResponse>> getCards(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "20") int size,
-//            @RequestParam(defaultValue = "latest") String sort,
-//            @RequestParam(required = false) String keyword,
-//            @RequestParam(required = false) Long tagId,
-//            @RequestParam(required = false) SolveStatus solveStatus
-//    ) {
-//        return ApiResponse.onSuccess(
-//                GeneralSuccessCode.FOUND,
-//                PageResponse.of(cardQueryService.getCards(page, size, sort, keyword, tagId, solveStatus))
-//        );
-//    }
+    @GetMapping
+    public ApiResponse<PageResponse<CardListItemResponse>> getCards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "latest") String sort,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long tagId,
+            @RequestParam(required = false) SolveStatus solveStatus
+    ) {
+        return ApiResponse.onSuccess(
+                GeneralSuccessCode.FOUND,
+                PageResponse.of(cardQueryService.getCards(page, size, sort, keyword, tagId, solveStatus))
+        );
+    }
 }
