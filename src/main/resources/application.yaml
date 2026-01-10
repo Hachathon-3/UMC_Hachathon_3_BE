@@ -16,7 +16,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/anxiety_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: "root"
-    password: "030722"
+    password: ${DB_PW}
 
   security:
     oauth2:
