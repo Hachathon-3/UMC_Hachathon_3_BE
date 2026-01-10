@@ -21,6 +21,4 @@ public record CardDetailResponse(
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
 ) {
-    public record AuthorResponse(Long userId, String name) {}
-    public record TagResponse(Long tagId, String name) {}
 }

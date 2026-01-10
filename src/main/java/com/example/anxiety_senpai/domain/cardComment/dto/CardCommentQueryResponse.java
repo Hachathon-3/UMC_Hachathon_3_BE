@@ -9,12 +9,11 @@ public record CardCommentQueryResponse(
         Long cardId,
         String content,
         CardCommentStatus status,
-        Author author,
+        CommentAuthorResponse author,
         long reactionCount,
         boolean liked,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
 ) {
-    public record Author(Long userId, String name) {}
 }

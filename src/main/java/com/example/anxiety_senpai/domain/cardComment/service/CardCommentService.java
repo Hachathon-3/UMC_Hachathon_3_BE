@@ -7,6 +7,7 @@ import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentCreateReques
 import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentCreateResponse;
 import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentListResponse;
 import com.example.anxiety_senpai.domain.cardComment.dto.CardCommentQueryResponse;
+import com.example.anxiety_senpai.domain.cardComment.dto.CommentAuthorResponse;
 import com.example.anxiety_senpai.domain.cardComment.entity.CardComment;
 import com.example.anxiety_senpai.domain.cardComment.exception.CardCommentException;
 import com.example.anxiety_senpai.domain.cardComment.exception.code.CardCommentErrorCode;
@@ -94,7 +95,7 @@ public class CardCommentService {
                     comment.getCard().getId(),
                     comment.getContent(),
                     comment.getStatus(),
-                    new CardCommentQueryResponse.Author(comment.getUser().getId(), comment.getUser().getName()),
+                    new CommentAuthorResponse(comment.getUser().getId(), comment.getUser().getName()),
                     reactionCount,
                     liked,
                     comment.getCreatedAt(),
