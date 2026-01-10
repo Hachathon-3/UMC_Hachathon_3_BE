@@ -2,6 +2,8 @@ package com.example.anxiety_senpai.domain.card.service;
 
 import com.example.anxiety_senpai.domain.card.dto.CardListItemResponse;
 import com.example.anxiety_senpai.domain.card.enums.SolveStatus;
+import com.example.anxiety_senpai.domain.card.exception.CardException;
+import com.example.anxiety_senpai.domain.card.exception.code.CardErrorCode;
 import com.example.anxiety_senpai.domain.card.repository.CardQueryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -25,13 +27,16 @@ public class CardQueryService {
             SolveStatus solveStatus
     ) {
         if (page < 0 || size <= 0) {
-            throw new IllegalArgumentException("Invalid paging parameters");
+            throw new CardException(CardErrorCode.INVALID_TAG_NAME); // placeholder 400
         }
 
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
 
         String normalizedKeyword = (StringUtils.hasText(keyword)) ? keyword.trim() : null;
 
+        if ("popular".equalsIgnoreCase(sort)) {
+            return cardQueryJpaRepository.searchCardsOrderByReactionDesc(tagId, solveStatus, normalizedKeyword, pageable);
+        }
         return cardQueryJpaRepository.searchCards(tagId, solveStatus, normalizedKeyword, pageable);
     }
 
@@ -41,6 +46,7 @@ public class CardQueryService {
         return switch (sort) {
             case "oldest" -> Sort.by(Sort.Direction.ASC, "createdAt");
             case "latest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "popular" -> Sort.unsorted();
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
     }
