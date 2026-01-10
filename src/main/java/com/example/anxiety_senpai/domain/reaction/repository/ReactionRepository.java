@@ -9,6 +9,9 @@ import java.util.List;
 
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
 
+    boolean existsByCardIdAndUserId(Long cardId, Long userId);
+    boolean existsByCardCommentIdAndUserId(Long commentId, Long userId);
+
     @Query("""
         select count(r)
         from Reaction r
