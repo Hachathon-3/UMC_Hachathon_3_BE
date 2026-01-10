@@ -3,9 +3,11 @@ package com.example.anxiety_senpai.domain.cardComment.entity;
 import com.example.anxiety_senpai.domain.card.entity.Card;
 import com.example.anxiety_senpai.domain.user.entity.User;
 import com.example.anxiety_senpai.global.entity.BaseEntity;
+import com.example.anxiety_senpai.domain.cardComment.enums.CardCommentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +72,14 @@ public class CardComment extends BaseEntity {
     @Builder.Default
     private Boolean isBest = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private CardCommentStatus status = CardCommentStatus.ACTIVE;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     /* ================= 도메인 메서드 ================= */
 
     /** 루트 댓글 여부 */
@@ -90,5 +100,27 @@ public class CardComment extends BaseEntity {
     /** 댓글 수정 */
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    /** 상태 조회 */
+    public boolean isActive() {
+        return status == CardCommentStatus.ACTIVE;
+    }
+
+    /** 숨김 처리 */
+    public void hide() {
+        this.status = CardCommentStatus.HIDDEN;
+    }
+
+    /** 복원 처리 */
+    public void restore() {
+        this.status = CardCommentStatus.ACTIVE;
+        this.deletedAt = null;
+    }
+
+    /** 삭제 처리 */
+    public void softDelete() {
+        this.status = CardCommentStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
     }
 }
