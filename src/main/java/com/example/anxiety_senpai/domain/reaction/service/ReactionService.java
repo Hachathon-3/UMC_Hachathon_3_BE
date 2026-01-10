@@ -22,6 +22,7 @@ public class ReactionService {
     private final CardRepository cardRepository;
     private final ReactionRepository reactionRepository;
     private final UserRepository userRepository;
+    private final CardCommentRepository cardCommentRepository;
 
     @Transactional
     public ReactionResponse reactToCard(Long cardId, Long userId) {
@@ -62,5 +63,29 @@ public class ReactionService {
         boolean myReacted = (userId != null) && reactionRepository.existsByCardIdAndUserId(cardId, userId);
 
         return new ReactionSummaryResponse(cardId, count, myReacted);
+    }
+
+    @Transactional
+    public ReactionResponse reactToComment(Long commentId, Long userId) {
+        if (userId == null) {
+            throw new ReactionException(ReactionErrorCode.UNAUTHORIZED);
+        }
+
+        CardComment comment = cardCommentRepository.findById(commentId)
+                .orElseThrow(() -> new ReactionException(ReactionErrorCode.NOT_FOUND_COMMENT));
+
+        if (reactionRepository.existsByCardCommentIdAndUserId(commentId, userId)) {
+            throw new ReactionException(ReactionErrorCode.DUPLICATE_COMMENT_REACTION);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ReactionException(ReactionErrorCode.UNAUTHORIZED));
+
+        reactionRepository.save(Reaction.builder()
+                .cardComment(comment)
+                .user(user)
+                .build());
+
+        return new ReactionResponse(commentId, true);
     }
 }

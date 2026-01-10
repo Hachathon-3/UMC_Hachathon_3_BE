@@ -16,17 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/cards/{cardId}/reactions")
+@RequestMapping({"/api/cards/{cardId}/reactions", "/api/comments/{commentId}/reactions"})
 public class ReactionController {
 
     private final ReactionService reactionService;
 
     @PostMapping
     public ApiResponse<ReactionResponse> react(
-            @PathVariable Long cardId,
+            @PathVariable(required = false) Long cardId,
+            @PathVariable(required = false) Long commentId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         Long userId = (user == null) ? null : user.getUserId();
+        if (commentId != null) {
+            ReactionResponse response = reactionService.reactToComment(commentId, userId);
+            return ApiResponse.onSuccess(ReactionSuccessCode.COMMENT_CREATED, response);
+        }
         ReactionResponse response = reactionService.reactToCard(cardId, userId);
         return ApiResponse.onSuccess(ReactionSuccessCode.CREATED, response);
     }
